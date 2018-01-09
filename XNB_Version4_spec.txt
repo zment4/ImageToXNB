@@ -1,0 +1,25 @@
+byte
+CHAR[3]				"XNB"
+Byte				target platform, w - windows, m - windows phone 7, x - xbox 460
+Byte				version (4 - XNA 3.1, 5 - XNA 4.0)
+Byte				Flag bits (0x1 HiDef, 0x80 compressed data - from typereader count onwards)
+Uint32				File size (total, including header [85? bytes?))
+Uint32				(Optional) Decompressed file size
+7BitEncodedInt			Type reader count
+Struct[Type reader Count]	Typereader array
+ - String			The class-path to the type reader (with textures its "Microsoft.XNA.Content.Texture2DReader")
+ - Int32			Version (0 usually/always)
+7BitEncodedInt			Shared Resource Count (0 usually/always)
+Object				Object Data
+ - 7BitEncodedInt		TypeId (Gets you Typereader[TypeId - 1])
+ - ObjectData			Data in the format the TypeReader[TypeId-1] expects
+
+ Texture2DReader
+ - Int32			SurfaceFormat enum, 0x01 - Color (ARGB32)
+ - Int32			Width
+ - Int32			Height
+ - Int32			Number of mipmap levels
+ - Int32			Number of bytes of image data
+ ARGB32_data
+ - Byte[width*height*4] For each pixel, 4 bytes for ARGB channels, one channel in each byte
+ 
