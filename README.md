@@ -7,7 +7,7 @@ The resulting XNB files are uncompressed, so for bigger images they could get qu
 
 ### Installation
 
-Download the executable from releases. Extract to your chosen location.
+Download the executable from releases and copy it to your chosen location.
 
 ### Usage
 
