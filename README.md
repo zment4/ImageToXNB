@@ -11,7 +11,7 @@ Download the executable from releases. Extract to your chosen location.
 
 In commandline with ImageToXNB (or in the same directory), run
 
-ImageToXNB <source> [<destination>]
+`ImageToXNB <source> [<destination>]`
 
 Destination is optional, and in case it is omitted, the filename is the same with the extension replaced with "xnb".
 
