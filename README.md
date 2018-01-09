@@ -7,7 +7,7 @@ The resulting XNB files are uncompressed, so for bigger images they could get qu
 
 ### Installation
 
-Download the executable from releases and copy it to your chosen location.
+Download the executable from the [latest release](https://github.com/jkarkkainen/ImageToXNB/releases/latest/) and copy it to your chosen location.
 
 ### Usage
 
@@ -19,4 +19,4 @@ Destination is optional, and in case it is omitted, the filename is the same wit
 
 ### Future
 
-If I have time, I could investigate adding compression -functionality to the program. Other than that, there is not much to this. A simple program, not much to improve.
+If I have time, I could investigate implementing XNB compression. Other than that, there is not much to this. A simple program, not much to improve.
