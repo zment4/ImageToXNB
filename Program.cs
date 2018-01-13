@@ -14,20 +14,67 @@ namespace ImageToXNB
     {
         static void Main(string[] args)
         {
+            var argsList = new List<string>(args);
+
+            bool recurse = false;
+
             if (args.Length < 1)
             {
-                Console.WriteLine("ImageToXNB <source> [<target>]\n");
+                Console.WriteLine("ImageToXNB [-r] <source> [<target>]\n");
                 Console.WriteLine("Supported formats BMP, GIF, JPEG, PNG, TIFF");
+                Console.WriteLine("\nSource can be a directory. When source is a directory, target is ignored.");
+                Console.WriteLine("\n\t-r\tWhen source is a directory, recurse subdirectories");
 
                 return;
             }
 
-            var sourceFilename = args[0];
-            var targetFilename = sourceFilename.Split('.').First() + ".xnb";
+            if (argsList.Any(x => x == "-r"))
+            {
+                recurse = true;
+                argsList.Remove("-r");
+            }
 
-            if (args.Length == 2)
-                targetFilename = args[1];
+            var sourceFilenames = new List<string>();
 
+            var sourcePath = argsList[0];
+            var targetPath = argsList[0];
+            if (Directory.Exists(sourcePath))
+            {
+                sourceFilenames = GetFilesInDirectory(new string[] { "png", "jpg", "tiff", "tif", "gif", "bmp" }, sourcePath, recurse);
+            } else
+            {
+                sourceFilenames.Add(sourcePath);
+            }
+
+            var targetFilenames = new List<string>();
+            if (recurse || !recurse && args.Length == 1)
+            {
+                if (args.Length == 3) targetPath = argsList[2];
+
+                targetFilenames = GetTargetFilenames(sourceFilenames, sourcePath, targetPath);
+            }
+            else if (!recurse && args.Length == 2)
+            {
+                targetFilenames.Add(argsList[1]);
+            }
+
+            var sourceTargetPairs = sourceFilenames.Select((x, i) => new { Source = x, Target = targetFilenames[i] });
+
+            Console.WriteLine("Converting " + sourcePath + " to " + targetPath + (recurse ? "\nWill recurse subdirectories" : ""));
+            foreach (var pair in sourceTargetPairs)
+            {
+                if (sourceTargetPairs.Count() > 1) Console.WriteLine(pair.Source + " -> " + pair.Target);
+                ConvertFile(pair.Source, pair.Target);
+            }
+        }
+
+        private static List<string> GetTargetFilenames(List<string> sourceFilenames, string sourcePath, string targetPath)
+        {
+            return sourceFilenames.Select(x => x.Replace(sourcePath, targetPath).Split('.')).Select(x => string.Join(".", x.Take(x.Length - 1)) + ".xnb").ToList();
+        }
+
+        private static void ConvertFile(string sourceFilename, string targetFilename)
+        {
             if (!File.Exists(sourceFilename))
             {
                 Console.WriteLine($"File '{sourceFilename}' not found.\nExiting...\n");
@@ -54,7 +101,7 @@ namespace ImageToXNB
                 using (var w = new BinaryWriter(s))
                 {
                     // Write header (w - windows, version 4, flags - 0)
-                    w.Write(new char[] { 'X', 'N', 'B', 'w', (char) 4, (char) 0});
+                    w.Write(new char[] { 'X', 'N', 'B', 'w', (char)4, (char)0 });
                     // Write total file size
                     w.Write(totalSize);
                     // How many typereaders do we have
@@ -79,7 +126,19 @@ namespace ImageToXNB
                     // The picture data, uncompressed
                     w.Write(argbValues, 0, bytes);
                 }
-            } 
+            }
+        }
+
+        private static List<string> GetFilesInDirectory(string[] fileExtensions, string sourcePath, bool recurse)
+        {
+            var files = Directory.EnumerateFiles(sourcePath).Where(x => fileExtensions.Any(y => y == x.Split('.').Last())).ToList();
+
+            if (recurse)
+            {
+                files.AddRange(Directory.EnumerateDirectories(sourcePath).SelectMany(x => GetFilesInDirectory(fileExtensions, x, recurse)));
+            }
+
+            return files;
         }
     }
 }
